@@ -13,7 +13,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 /*  Encryption is only for demonstration purposes, it is not secure.
     Correctly handling passwords would involve hashing the password 
-    on the client side, since decrypting a password serves no purpose */
+    on the client side so that the plain password is never transmitted
+    or stored */
 const crypto = require('crypto');
 const algorithm = 'aes-256-ctr';
 const key = 'asdfghjkl0987654321';
