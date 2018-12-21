@@ -1,0 +1,23 @@
+
+<!doctype html>
+<html> 
+    <head>
+        <title>Main Page</title>
+    </head>
+    <body>
+        <center>
+                <form action="/add" method="post">
+                    <br>
+                    <p>Add a new user:</p>
+                    <label for="username">Username: </label>
+                    <br><input id="username" type="text" name="username" required>
+                    <br>
+                    <br>
+                    <label for="password">Password: </label>
+                    <br><input id="password" type="password" name="password" required>              
+                    <br>
+                    <br><input type="submit" value="Add User">
+                </form>
+                <br>
+                <p>Current Users:</p>
+                
