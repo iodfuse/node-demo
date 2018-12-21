@@ -5,6 +5,8 @@ const mongo = require('mongodb').MongoClient;
 const port = 80;
 const mongoURL = "mongodb://localhost:27017/";
 
+// I tried to use as little middleware or libraries as possible to increase my understanding
+// I only used body-parser to simplify POST requests, and crypto to perform encryption
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -16,6 +18,7 @@ const crypto = require('crypto');
 const algorithm = 'aes-256-ctr';
 const key = 'asdfghjkl0987654321';
 
+// Read the static part of the HTML used to build the main page.
 const fs = require('fs');
 fs.readFile(__dirname + '/html/main1.txt', 'utf8', function(err, data) {
   if (err) throw err;
@@ -26,16 +29,17 @@ fs.readFile(__dirname + '/html/main2.txt', 'utf8', function(err, data) {
     app.locals.main2 = data;
 });
 
-//connect to the database
+// Connect to the database
 mongo.connect(mongoURL, function(err, client) {
     if (err) throw err;
     console.log("Database connected!");
     app.locals.db = client.db("main");
     
-    //check for tables and default user, needed in case of new environment
+    // Check for tables and default user, needed in case of new environment
     var cryptpass = encrypt("password");
     console.log("password encrypted as: " + cryptpass);
     console.log("decrypted: " + decrypt(cryptpass));
+    // This will always set the defaul username and password on start
     app.locals.db.collection("users").updateOne(
         { username: "admin" },
         { $set: 
@@ -48,9 +52,10 @@ mongo.connect(mongoURL, function(err, client) {
 });
 
 
-
+// Deliver the login page
 app.get('/', (req, res) => res.sendFile(__dirname + '/html/login.html'));
 
+// Handle a login attempt using an HTTP POST request
 app.post('/main', (req, res) => {
     var name = req.body.username;
     var pass = req.body.password;
@@ -72,6 +77,8 @@ app.post('/main', (req, res) => {
     });
 });
 
+// Handle an addition or update to users using an HTTP POST request
+// This is not secure, it can be accessed without logging in.
 app.post('/add', (req, res) => {
     var name = req.body.username;
     var pass = req.body.password;
@@ -97,15 +104,16 @@ app.post('/add', (req, res) => {
 });
 
 function encrypt(x) {
-  var cipher = crypto.createCipher(algorithm, key);
-  return cipher.update(x, 'utf8', 'hex') + cipher.final('hex');
+    var cipher = crypto.createCipher(algorithm, key);
+    return cipher.update(x, 'utf8', 'hex') + cipher.final('hex');
 }
  
 function decrypt(x) {
-  var decipher = crypto.createDecipher(algorithm, key);
-  return decipher.update(x, 'hex', 'utf8') + decipher.final('utf8');
+    var decipher = crypto.createDecipher(algorithm, key);
+    return decipher.update(x, 'hex', 'utf8') + decipher.final('utf8');
 }
 
+// Use an array of user documents to construct the main page after login
 function buildMainPage(userlist) {
     var html = app.locals.main1;    
 
